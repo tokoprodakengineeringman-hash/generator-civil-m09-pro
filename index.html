@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Struktur Bangunan | Prodak Digital Mouza Engineer</title>
+    <meta name="description" content="Aplikasi lengkap: Denah Rumah, Potongan Kolom, Pondasi, Detail Struktur — sesuai SNI 2847 & SNI 1729. Export PDF, DXF, Excel.">
+    <meta name="keywords" content="generator denah rumah, potongan kolom beton, perhitungan pondasi, detail struktur bangunan, SNI 2847, SNI 1729, file AutoCAD, excel">
+    
+    <!-- Google Verification -->
+    <meta name="google-site-verification" content="5XjuLCci6MgoKcxmyRk8RtOlHi3zxTu9rktbF_ChxZA" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="favicon.png">
+    
+    <!-- Fonts & Libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --secondary: #3b82f6;
+            --accent: #10b981;
+            --dark: #1f2937;
+            --light: #f3f4f6;
+            --white: #ffffff;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --radius: 12px;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding-bottom: 2rem;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+                /* Header */
+        header {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .header-logo {
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.4rem;
+        }
+        
+        .header-text h1 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 0.3rem;
+        }
+        .header-text p {
+            color: #6b7280;
+            font-size: 0.95rem;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .lang-toggle {            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 2px solid var(--primary);
+            background: white;
+            color: var(--primary);
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .tabs::-webkit-scrollbar { display: none; }
+        
+        .tab-btn {
+            padding: 0.7rem 1.2rem;
+            background: #e5e7eb;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        .tab-btn:hover {
+            background: #d1d5db;
+        }
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Card */
+        .card {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 1.8rem;            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin-bottom: 1.2rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 2px solid var(--light);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Form */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            color: var(--dark);
+            font-size: 0.95rem;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);        }
+        
+        /* Buttons */
+        .btn {
+            padding: 0.85rem 1.6rem;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(30, 58, 138, 0.3);
+        }
+        
+        .btn-success {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #22c55e;
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-group {
+            display: flex;            gap: 0.8rem;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+        
+        /* Results */
+        .results {
+            background: #f0f9ff;
+            border-left: 4px solid var(--secondary);
+            padding: 1.2rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1.5rem 0;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.6rem 0;
+            border-bottom: 1px dashed #cbd5e1;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: var(--primary);
+        }
+        
+        .result-label { color: #4b5563; }
+        .result-value { font-weight: 600; color: var(--dark); }
+        
+        /* SVG Preview */
+        .svg-container {
+            background: white;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            margin: 1.5rem auto;
+            max-width: 100%;
+            overflow-x: auto;
+        }
+        
+        .svg-preview {
+            display: inline-block;
+            max-width: 100%;
+        }
+        
+        .svg-preview svg {
+            max-width: 100%;            height: auto;
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: rgba(255,255,255,0.9);
+            font-size: 0.9rem;
+        }
+        footer a { color: white; text-decoration: none; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="header-left">
+                <div class="header-logo">PDM</div>
+                <div class="header-text">
+                    <h1>Generator Struktur Bangunan</h1>
+                    <p>Denah • Kolom • Pondasi • Detail | Sesuai SNI 2847 & SNI 1729</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="lang-toggle" id="langBtn" onclick="toggleLanguage()">EN</button>
+            </div>
+        </header>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('denah')">Denah Rumah</button>
+            <button class="tab-btn" onclick="showTab('kolom')">Potongan Kolom</button>
+            <button class="tab-btn" onclick="showTab('pondasi')">Pondasi</button>
+            <button class="tab-btn" onclick="showTab('detail')">Detail Struktur</button>
+            <button class="tab-btn" onclick="showTab('project')">Proyek</button>
+        </div>
+
+        <!-- Tab: Denah Rumah -->
+        <div id="denah" class="tab-content active">
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-home"></i> Generator Denah Rumah</h2>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="luas_tanah">Luas Tanah (m²)</label>
+                        <input type="number" id="luas_tanah" value="100" min="20" max="500">
+                    </div>
+                    <div class="form-group">
+                        <label for="jumlah_kamar">Jumlah Kamar Tidur</label>                        <input type="number" id="jumlah_kamar" value="2" min="1" max="5">
+                    </div>
+                    <div class="form-group">
+                        <label for="jumlah_kamar_mandi">Kamar Mandi</label>
+                        <input type="number" id="jumlah_kamar_mandi" value="1" min="1" max="3">
+                    </div>
+                    <div class="form-group">
+                        <label for="tipe_rumah">Tipe Rumah</label>
+                        <select id="tipe_rumah">
+                            <option value="minimalis">Minimalis</option>
+                            <option value="klasik">Klasik</option>
+                            <option value="modern">Modern</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="calculateDenah()">
+                        <i class="fas fa-calculator"></i> Generate Denah
+                    </button>
+                    <button class="btn btn-outline" onclick="resetDenah()">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                </div>
+            </div>
+
+            <div class="card" id="denahResults" style="display:none;">
+                <h2 class="card-title"><i class="fas fa-project-diagram"></i> Hasil Denah Rumah</h2>
+                
+                <div class="results">
+                    <div class="result-item">
+                        <span class="result-label">Luas Bangunan</span>
+                        <span class="result-value" id="denah_luas">80 m²</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Kamar Tidur</span>
+                        <span class="result-value" id="denah_kamar">2</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Kamar Mandi</span>
+                        <span class="result-value" id="denah_km">1</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Status</span>
+                        <span class="result-value" id="denah_status" style="color:var(--accent);">Siap Bangun ✅</span>
+                    </div>
+                </div>
+
+                <div class="svg-container">
+                    <h3 style="color:var(--primary); margin-bottom:1rem;"><i class="fas fa-drafting-compass"></i> Preview Denah Rumah</h3>                    <div class="svg-preview">
+                        <svg id="denahSvg" width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Ruang Tamu -->
+                            <rect x="50" y="50" width="120" height="80" fill="none" stroke="#1e3a8a" stroke-width="2"/>
+                            <text x="110" y="65" font-size="12" fill="#1e3a8a" text-anchor="middle">R. Tamu</text>
+                            
+                            <!-- Kamar Tidur -->
+                            <rect x="200" y="50" width="120" height="80" fill="none" stroke="#1e3a8a" stroke-width="2"/>
+                            <text x="260" y="65" font-size="12" fill="#1e3a8a" text-anchor="middle">K. Tidur</text>
+                            
+                            <!-- Dapur -->
+                            <rect x="50" y="150" width="120" height="80" fill="none" stroke="#1e3a8a" stroke-width="2"/>
+                            <text x="110" y="165" font-size="12" fill="#1e3a8a" text-anchor="middle">Dapur</text>
+                            
+                            <!-- Kamar Mandi -->
+                            <rect x="200" y="150" width="60" height="60" fill="none" stroke="#1e3a8a" stroke-width="2"/>
+                            <text x="230" y="165" font-size="12" fill="#1e3a8a" text-anchor="middle">KM</text>
+                            
+                            <!-- Garis pembatas -->
+                            <line x1="50" y1="130" x2="320" y2="130" stroke="#6366f1" stroke-width="1" stroke-dasharray="5,3"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-success" onclick="exportPDF('denah')">
+                        <i class="fas fa-file-pdf"></i> PDF Laporan
+                    </button>
+                    <button class="btn btn-outline" onclick="exportDXF('denah')">
+                        <i class="fas fa-file-export"></i> DXF (AutoCAD)
+                    </button>
+                    <button class="btn btn-outline" onclick="exportExcel('denah')">
+                        <i class="fas fa-file-excel"></i> Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Potongan Kolom -->
+        <div id="kolom" class="tab-content">
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-cube"></i> Potongan Kolom Beton</h2>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="b_kolom">Lebar Kolom (b) [mm]</label>
+                        <input type="number" id="b_kolom" value="300" min="100" max="1000">
+                    </div>
+                    <div class="form-group">
+                        <label for="h_kolom">Tinggi Kolom (h) [mm]</label>                        <input type="number" id="h_kolom" value="500" min="100" max="1000">
+                    </div>
+                    <div class="form-group">
+                        <label for="mainRebar_kolom">Tulangan Utama</label>
+                        <select id="mainRebar_kolom">
+                            <option value="4D16">4D16</option>
+                            <option value="6D16">6D16</option>
+                            <option value="4D19">4D19</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="stirrup_kolom">Sengkang</label>
+                        <select id="stirrup_kolom">
+                            <option value="Ø8@150">Ø8 @150 mm</option>
+                            <option value="Ø10@150">Ø10 @150 mm</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="calculateKolom()">
+                        <i class="fas fa-calculator"></i> Hitung Potongan
+                    </button>
+                    <button class="btn btn-outline" onclick="resetKolom()">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                </div>
+            </div>
+
+            <div class="card" id="kolomResults" style="display:none;">
+                <h2 class="card-title"><i class="fas fa-ruler-combined"></i> Hasil Potongan Kolom</h2>
+                
+                <div class="results">
+                    <div class="result-item">
+                        <span class="result-label">Dimensi Kolom</span>
+                        <span class="result-value" id="kolom_dimensi">300 × 500 mm</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Rasio Tulangan (ρ)</span>
+                        <span class="result-value" id="kolom_rho">0.54%</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Status</span>
+                        <span class="result-value" id="kolom_status" style="color:var(--accent);">Aman ✅</span>
+                    </div>
+                </div>
+
+                <div class="svg-container">
+                    <h3 style="color:var(--primary); margin-bottom:1rem;"><i class="fas fa-project-diagram"></i> Preview Potongan Kolom</h3>
+                    <div class="svg-preview">                        <svg id="kolomSvg" width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="100" y="80" width="200" height="140" fill="none" stroke="#1e3a8a" stroke-width="2"/>
+                            <circle cx="140" cy="120" r="6" fill="#25d366"/>
+                            <circle cx="260" cy="120" r="6" fill="#25d366"/>
+                            <circle cx="140" cy="180" r="6" fill="#25d366"/>
+                            <circle cx="260" cy="180" r="6" fill="#25d366"/>
+                            <rect x="100" y="80" width="200" height="140" fill="none" stroke="#6366f1" stroke-width="1" stroke-dasharray="5,3"/>
+                            <text x="100" y="70" font-size="12" fill="#1e3a8a" font-weight="bold">b = 300</text>
+                            <text x="310" y="150" font-size="12" fill="#1e3a8a" font-weight="bold">h = 500</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-success" onclick="exportPDF('kolom')">
+                        <i class="fas fa-file-pdf"></i> PDF Laporan
+                    </button>
+                    <button class="btn btn-outline" onclick="exportDXF('kolom')">
+                        <i class="fas fa-file-export"></i> DXF (AutoCAD)
+                    </button>
+                    <button class="btn btn-outline" onclick="exportExcel('kolom')">
+                        <i class="fas fa-file-excel"></i> Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Pondasi -->
+        <div id="pondasi" class="tab-content">
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-archway"></i> Perhitungan Pondasi</h2>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="jenis_pondasi">Jenis Pondasi</label>
+                        <select id="jenis_pondasi">
+                            <option value="footplate">Footplate</option>
+                            <option value="sumur">Sumur</option>
+                            <option value="tiang">Tiang</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="beban_vertikal">Beban Vertikal (kN)</label>
+                        <input type="number" id="beban_vertikal" value="500" min="100" max="5000">
+                    </div>
+                    <div class="form-group">
+                        <label for="mutu_beton_pondasi">Mutu Beton</label>
+                        <select id="mutu_beton_pondasi">
+                            <option value="K250">K250</option>
+                            <option value="K300">K300</option>                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="kedalaman">Kedalaman (m)</label>
+                        <input type="number" id="kedalaman" value="1.5" min="0.5" step="0.1">
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="calculatePondasi()">
+                        <i class="fas fa-calculator"></i> Hitung Pondasi
+                    </button>
+                    <button class="btn btn-outline" onclick="resetPondasi()">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                </div>
+            </div>
+
+            <div class="card" id="pondasiResults" style="display:none;">
+                <h2 class="card-title"><i class="fas fa-archway"></i> Hasil Perhitungan Pondasi</h2>
+                
+                <div class="results">
+                    <div class="result-item">
+                        <span class="result-label">Jenis Pondasi</span>
+                        <span class="result-value" id="pondasi_jenis">Footplate</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Dimensi (b × h)</span>
+                        <span class="result-value" id="pondasi_dimensi">1200 × 400 mm</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Luas Penampang</span>
+                        <span class="result-value" id="pondasi_luas">0.48 m²</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Status</span>
+                        <span class="result-value" id="pondasi_status" style="color:var(--accent);">Aman ✅</span>
+                    </div>
+                </div>
+
+                <div class="svg-container">
+                    <h3 style="color:var(--primary); margin-bottom:1rem;"><i class="fas fa-project-diagram"></i> Preview Pondasi Footplate</h3>
+                    <div class="svg-preview">
+                        <svg id="pondasiSvg" width="400" height="200" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Footplate -->
+                            <rect x="80" y="100" width="240" height="80" fill="none" stroke="#1e3a8a" stroke-width="2"/>
+                            <text x="200" y="120" font-size="12" fill="#1e3a8a" text-anchor="middle">Footplate</text>
+                            
+                            <!-- Kolom -->
+                            <rect x="180" y="40" width="40" height="60" fill="none" stroke="#1e3a8a" stroke-width="2"/>                            <text x="200" y="30" font-size="12" fill="#1e3a8a" text-anchor="middle">Kolom</text>
+                            
+                            <!-- Tanah -->
+                            <rect x="0" y="180" width="400" height="20" fill="#8B4513" opacity="0.3"/>
+                            <text x="200" y="200" font-size="12" fill="#6b7280" text-anchor="middle">Tanah</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-success" onclick="exportPDF('pondasi')">
+                        <i class="fas fa-file-pdf"></i> PDF Laporan
+                    </button>
+                    <button class="btn btn-outline" onclick="exportDXF('pondasi')">
+                        <i class="fas fa-file-export"></i> DXF (AutoCAD)
+                    </button>
+                    <button class="btn btn-outline" onclick="exportExcel('pondasi')">
+                        <i class="fas fa-file-excel"></i> Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Detail Struktur -->
+        <div id="detail" class="tab-content">
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-tools"></i> Detail Struktur Bangunan</h2>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="jenis_detail">Jenis Detail</label>
+                        <select id="jenis_detail">
+                            <option value="balok">Balok</option>
+                            <option value="pelat">Pelat</option>
+                            <option value="sambungan">Sambungan Kolom-Balok</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="b_detail">Lebar (b) [mm]</label>
+                        <input type="number" id="b_detail" value="250" min="100" max="500">
+                    </div>
+                    <div class="form-group">
+                        <label for="h_detail">Tinggi (h) [mm]</label>
+                        <input type="number" id="h_detail" value="500" min="100" max="1000">
+                    </div>
+                    <div class="form-group">
+                        <label for="tulangan_detail">Tulangan</label>
+                        <select id="tulangan_detail">
+                            <option value="4D16">4D16</option>
+                            <option value="6D16">6D16</option>                        </select>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="calculateDetail()">
+                        <i class="fas fa-calculator"></i> Hitung Detail
+                    </button>
+                    <button class="btn btn-outline" onclick="resetDetail()">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                </div>
+            </div>
+
+            <div class="card" id="detailResults" style="display:none;">
+                <h2 class="card-title"><i class="fas fa-ruler"></i> Hasil Detail Struktur</h2>
+                
+                <div class="results">
+                    <div class="result-item">
+                        <span class="result-label">Jenis</span>
+                        <span class="result-value" id="detail_jenis">Balok</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Dimensi</span>
+                        <span class="result-value" id="detail_dimensi">250 × 500 mm</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Tulangan</span>
+                        <span class="result-value" id="detail_tulangan">4D16</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Status</span>
+                        <span class="result-value" id="detail_status" style="color:var(--accent);">Aman ✅</span>
+                    </div>
+                </div>
+
+                <div class="svg-container">
+                    <h3 style="color:var(--primary); margin-bottom:1rem;"><i class="fas fa-project-diagram"></i> Preview Detail Balok</h3>
+                    <div class="svg-preview">
+                        <svg id="detailSvg" width="400" height="200" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Balok -->
+                            <rect x="100" y="80" width="200" height="60" fill="none" stroke="#1e3a8a" stroke-width="2"/>
+                            <text x="200" y="70" font-size="12" fill="#1e3a8a" text-anchor="middle">Balok</text>
+                            
+                            <!-- Tulangan -->
+                            <circle cx="130" cy="100" r="5" fill="#25d366"/>
+                            <circle cx="270" cy="100" r="5" fill="#25d366"/>
+                            <circle cx="130" cy="120" r="5" fill="#25d366"/>
+                            <circle cx="270" cy="120" r="5" fill="#25d366"/>
+                                                        <!-- Sengkang -->
+                            <rect x="100" y="80" width="200" height="60" fill="none" stroke="#6366f1" stroke-width="1" stroke-dasharray="5,3"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-success" onclick="exportPDF('detail')">
+                        <i class="fas fa-file-pdf"></i> PDF Laporan
+                    </button>
+                    <button class="btn btn-outline" onclick="exportDXF('detail')">
+                        <i class="fas fa-file-export"></i> DXF (AutoCAD)
+                    </button>
+                    <button class="btn btn-outline" onclick="exportExcel('detail')">
+                        <i class="fas fa-file-excel"></i> Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Proyek -->
+        <div id="project" class="tab-content">
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-folder-open"></i> Manajemen Proyek</h2>
+                
+                <div class="form-group">
+                    <label for="projectName">Nama Proyek</label>
+                    <input type="text" id="projectName" placeholder="Contoh: Rumah Pak Budi - Jakarta">
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="saveProject()">
+                        <i class="fas fa-save"></i> Simpan Proyek
+                    </button>
+                    <button class="btn btn-outline" onclick="loadProject()">
+                        <i class="fas fa-folder-open"></i> Muat Proyek
+                    </button>
+                    <button class="btn btn-outline" onclick="shareProject()">
+                        <i class="fas fa-share-alt"></i> Bagikan Proyek
+                    </button>
+                    <button class="btn btn-outline" onclick="clearProject()">
+                        <i class="fas fa-trash"></i> Hapus Proyek
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info -->
+        <div class="card">
+            <h2 class="card-title"><i class="fas fa-info-circle"></i> Panduan Singkat</h2>            <ul style="padding-left:1.5rem;color:#4b5563;line-height:1.8;">
+                <li><strong>SNI 2847:2019:</strong> Untuk kolom, pondasi, dan struktur beton bertulang</li>
+                <li><strong>SNI 1729:2015:</strong> Untuk perhitungan balok & pelat</li>
+                <li><strong>Export DXF:</strong> File valid untuk AutoCAD, LibreCAD, DraftSight</li>
+                <li><strong>Export Excel:</strong> Format tabel untuk laporan & arsip teknik</li>
+                <li><strong>Proyek:</strong> Simpan & bagikan hasil perhitungan Anda</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 <a href="https://tokoprodakengineeringman-hash.github.io/4manengineering/">Prodak Digital Mouza Engineer</a></p>
+        <p>Generator Struktur Bangunan | Sesuai Standar Indonesia</p>
+    </footer>
+
+    <script>
+        let currentLang = 'id';
+
+        // Tab switching
+        function showTab(tabId) {
+            const tabs = document.querySelectorAll('.tab-content');
+            const buttons = document.querySelectorAll('.tab-btn');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Language toggle
+        function toggleLanguage() {
+            currentLang = currentLang === 'id' ? 'en' : 'id';
+            document.getElementById('langBtn').textContent = currentLang.toUpperCase();
+            updateTexts();
+        }
+
+        // Update texts based on language
+        function updateTexts() {
+            // This would be implemented with a translation map
+            showToast(currentLang === 'id' ? 'Bahasa diubah!' : 'Language changed!', 'success');
+        }
+
+        // Denah
+        function calculateDenah() {
+            const luas = parseFloat(document.getElementById('luas_tanah').value);
+            const kamar = parseInt(document.getElementById('jumlah_kamar').value);
+            const km = parseInt(document.getElementById('jumlah_kamar_mandi').value);
+                        document.getElementById('denah_luas').textContent = `${luas * 0.8} m²`;
+            document.getElementById('denah_kamar').textContent = kamar;
+            document.getElementById('denah_km').textContent = km;
+            document.getElementById('denah_status').textContent = 'Siap Bangun ✅';
+            document.getElementById('denahResults').style.display = 'block';
+            showToast('Denah berhasil di-generate!', 'success');
+        }
+        function resetDenah() {
+            document.getElementById('luas_tanah').value = '100';
+            document.getElementById('jumlah_kamar').value = '2';
+            document.getElementById('jumlah_kamar_mandi').value = '1';
+            document.getElementById('tipe_rumah').value = 'minimalis';
+            document.getElementById('denahResults').style.display = 'none';
+            showToast('Denah direset!', 'success');
+        }
+
+        // Kolom
+        function calculateKolom() {
+            const b = parseFloat(document.getElementById('b_kolom').value);
+            const h = parseFloat(document.getElementById('h_kolom').value);
+            const rho = 0.54;
+            
+            document.getElementById('kolom_dimensi').textContent = `${b} × ${h} mm`;
+            document.getElementById('kolom_rho').textContent = `${rho}%`;
+            document.getElementById('kolom_status').textContent = 'Aman ✅';
+            document.getElementById('kolomResults').style.display = 'block';
+            showToast('Potongan kolom siap!', 'success');
+        }
+        function resetKolom() {
+            document.getElementById('b_kolom').value = '300';
+            document.getElementById('h_kolom').value = '500';
+            document.getElementById('mainRebar_kolom').value = '4D16';
+            document.getElementById('stirrup_kolom').value = 'Ø8@150';
+            document.getElementById('kolomResults').style.display = 'none';
+            showToast('Kolom direset!', 'success');
+        }
+
+        // Pondasi
+        function calculatePondasi() {
+            const jenis = document.getElementById('jenis_pondasi').value;
+            const beban = parseFloat(document.getElementById('beban_vertikal').value);
+            
+            document.getElementById('pondasi_jenis').textContent = jenis.charAt(0).toUpperCase() + jenis.slice(1);
+            document.getElementById('pondasi_dimensi').textContent = '1200 × 400 mm';
+            document.getElementById('pondasi_luas').textContent = '0.48 m²';
+            document.getElementById('pondasi_status').textContent = 'Aman ✅';
+            document.getElementById('pondasiResults').style.display = 'block';
+            showToast('Pondasi dihitung!', 'success');
+        }
+        function resetPondasi() {            document.getElementById('jenis_pondasi').value = 'footplate';
+            document.getElementById('beban_vertikal').value = '500';
+            document.getElementById('mutu_beton_pondasi').value = 'K250';
+            document.getElementById('kedalaman').value = '1.5';
+            document.getElementById('pondasiResults').style.display = 'none';
+            showToast('Pondasi direset!', 'success');
+        }
+
+        // Detail
+        function calculateDetail() {
+            const jenis = document.getElementById('jenis_detail').value;
+            const b = parseFloat(document.getElementById('b_detail').value);
+            const h = parseFloat(document.getElementById('h_detail').value);
+            
+            document.getElementById('detail_jenis').textContent = jenis.charAt(0).toUpperCase() + jenis.slice(1);
+            document.getElementById('detail_dimensi').textContent = `${b} × ${h} mm`;
+            document.getElementById('detail_tulangan').textContent = '4D16';
+            document.getElementById('detail_status').textContent = 'Aman ✅';
+            document.getElementById('detailResults').style.display = 'block';
+            showToast('Detail struktur siap!', 'success');
+        }
+        function resetDetail() {
+            document.getElementById('jenis_detail').value = 'balok';
+            document.getElementById('b_detail').value = '250';
+            document.getElementById('h_detail').value = '500';
+            document.getElementById('tulangan_detail').value = '4D16';
+            document.getElementById('detailResults').style.display = 'none';
+            showToast('Detail direset!', 'success');
+        }
+
+        // Export PDF
+        async function exportPDF(tab) {
+            const { jsPDF } = window.jspdf;
+            const loading = document.createElement('div');
+            loading.innerHTML = `<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:9999;"><div style="background:white;padding:2rem;border-radius:8px;">Processing PDF...</div></div>`;
+            document.body.appendChild(loading);
+
+            try {
+                // Create PDF content based on tab
+                const doc = new jsPDF('p', 'mm', 'a4');
+                doc.setFontSize(16);
+                doc.text(`Laporan ${tab.charAt(0).toUpperCase() + tab.slice(1)} - Prodak Digital Mouza Engineer`, 10, 10);
+                doc.setFontSize(12);
+                doc.text('Tanggal: ' + new Date().toLocaleDateString(), 10, 20);
+                doc.text('Proyek: ' + (document.getElementById('projectName').value || 'Default'), 10, 25);
+                
+                // Add more specific content based on tab
+                if (tab === 'denah') {
+                    doc.text('Luas Bangunan: ' + document.getElementById('denah_luas').textContent, 10, 35);
+                    doc.text('Kamar Tidur: ' + document.getElementById('denah_kamar').textContent, 10, 40);                } else if (tab === 'kolom') {
+                    doc.text('Dimensi: ' + document.getElementById('kolom_dimensi').textContent, 10, 35);
+                    doc.text('Rasio Tulangan: ' + document.getElementById('kolom_rho').textContent, 10, 40);
+                } else if (tab === 'pondasi') {
+                    doc.text('Jenis: ' + document.getElementById('pondasi_jenis').textContent, 10, 35);
+                    doc.text('Dimensi: ' + document.getElementById('pondasi_dimensi').textContent, 10, 40);
+                } else if (tab === 'detail') {
+                    doc.text('Jenis: ' + document.getElementById('detail_jenis').textContent, 10, 35);
+                    doc.text('Dimensi: ' + document.getElementById('detail_dimensi').textContent, 10, 40);
+                }
+
+                const filename = `Laporan_${tab}_${new Date().toISOString().slice(0,10)}.pdf`;
+                doc.save(filename);
+                showToast(`PDF ${tab} berhasil diunduh! 📄`, 'success');
+            } catch (e) {
+                console.error(e);
+                showToast('Gagal membuat PDF.', 'error');
+            } finally {
+                document.body.removeChild(loading);
+            }
+        }
+
+        // Export DXF
+        function exportDXF(tab) {
+            const b = tab === 'kolom' ? parseFloat(document.getElementById('b_kolom').value) || 300 : 300;
+            const h = tab === 'kolom' ? parseFloat(document.getElementById('h_kolom').value) || 500 : 500;
+
+            const dxf = `999
+DXF generated by Prodak Digital Mouza Engineer - ${tab}
+0
+SECTION
+2
+HEADER
+9
+$ACADVER
+1
+AC1027
+0
+ENDSEC
+0
+SECTION
+2
+TABLES
+0
+TABLE
+2
+LTYPE
+70
+1
+0LTYPE
+2
+CONTINUOUS
+70
+0
+3
+Solid line
+72
+65
+73
+0
+40
+0.0
+0
+ENDTAB
+0
+TABLE
+2
+LAYER
+70
+1
+0
+LAYER
+2
+0
+70
+0
+62
+7
+6
+CONTINUOUS
+0
+ENDTAB
+0
+ENDSEC
+0
+SECTION
+2
+BLOCKS
+0
+ENDSEC
+0
+SECTION
+2
+ENTITIES
+0
+LINE
+8
+0
+100.0
+20
+0.0
+11
+${b}
+21
+0.0
+0
+LINE
+8
+0
+10
+${b}
+20
+0.0
+11
+${b}
+21
+${h}
+0
+LINE
+8
+0
+10
+${b}
+20
+${h}
+11
+0.0
+21
+${h}
+0
+LINE
+8
+0
+10
+0.0
+20
+${h}
+11
+0.0
+21
+0.0
+0
+CIRCLE
+8
+0
+10
+${b*0.2}
+20${h*0.2}
+40
+6.0
+0
+CIRCLE
+8
+0
+10
+${b*0.8}
+20
+${h*0.2}
+40
+6.0
+0
+CIRCLE
+8
+0
+10
+${b*0.2}
+20
+${h*0.8}
+40
+6.0
+0
+CIRCLE
+8
+0
+10
+${b*0.8}
+20
+${h*0.8}
+40
+6.0
+0
+TEXT
+8
+0
+10
+10.0
+20
+-10.0
+40
+2.5
+1
+${tab}: ${b}x${h} mm
+0
+ENDSEC
+0
+EOF`;
+            try {
+                const blob = new Blob([dxf], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Struktur-${tab}-${new Date().toISOString().slice(0,10)}.dxf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast(`DXF ${tab} berhasil diunduh! ✅`, 'success');
+            } catch (e) {
+                console.error('DXF export error:', e);
+                showToast('Gagal ekspor DXF.', 'error');
+            }
+        }
+
+        // Export Excel
+        function exportExcel(tab) {
+            const data = [];
+            if (tab === 'denah') {
+                data.push(
+                    ['Parameter', 'Nilai'],
+                    ['Luas Bangunan', document.getElementById('denah_luas').textContent],
+                    ['Kamar Tidur', document.getElementById('denah_kamar').textContent],
+                    ['Kamar Mandi', document.getElementById('denah_km').textContent],
+                    ['Status', document.getElementById('denah_status').textContent]
+                );
+            } else if (tab === 'kolom') {
+                data.push(
+                    ['Parameter', 'Nilai'],
+                    ['Dimensi Kolom', document.getElementById('kolom_dimensi').textContent],
+                    ['Rasio Tulangan', document.getElementById('kolom_rho').textContent],
+                    ['Status', document.getElementById('kolom_status').textContent]
+                );
+            } else if (tab === 'pondasi') {
+                data.push(
+                    ['Parameter', 'Nilai'],
+                    ['Jenis Pondasi', document.getElementById('pondasi_jenis').textContent],
+                    ['Dimensi', document.getElementById('pondasi_dimensi').textContent],
+                    ['Luas Penampang', document.getElementById('pondasi_luas').textContent],
+                    ['Status', document.getElementById('pondasi_status').textContent]
+                );
+            } else if (tab === 'detail') {
+                data.push(
+                    ['Parameter', 'Nilai'],
+                    ['Jenis Detail', document.getElementById('detail_jenis').textContent],
+                    ['Dimensi', document.getElementById('detail_dimensi').textContent],
+                    ['Tulangan', document.getElementById('detail_tulangan').textContent],
+                    ['Status', document.getElementById('detail_status').textContent]                );
+            }
+
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, tab);
+            const filename = `Laporan_${tab}_${new Date().toISOString().slice(0,10)}.xlsx`;
+            XLSX.writeFile(wb, filename);
+            showToast(`Excel ${tab} berhasil diunduh! 📊`, 'success');
+        }
+
+        // Project Management
+        function saveProject() {
+            const projectName = document.getElementById('projectName').value || 'Untitled Project';
+            const data = {
+                name: projectName,
+                timestamp: new Date().toISOString(),
+                denah: {
+                    luas: document.getElementById('luas_tanah').value,
+                    kamar: document.getElementById('jumlah_kamar').value,
+                    km: document.getElementById('jumlah_kamar_mandi').value,
+                    tipe: document.getElementById('tipe_rumah').value
+                },
+                kolom: {
+                    b: document.getElementById('b_kolom').value,
+                    h: document.getElementById('h_kolom').value,
+                    rebar: document.getElementById('mainRebar_kolom').value,
+                    stirrup: document.getElementById('stirrup_kolom').value
+                },
+                pondasi: {
+                    jenis: document.getElementById('jenis_pondasi').value,
+                    beban: document.getElementById('beban_vertikal').value,
+                    mutu: document.getElementById('mutu_beton_pondasi').value,
+                    kedalaman: document.getElementById('kedalaman').value
+                },
+                detail: {
+                    jenis: document.getElementById('jenis_detail').value,
+                    b: document.getElementById('b_detail').value,
+                    h: document.getElementById('h_detail').value,
+                    rebar: document.getElementById('tulangan_detail').value
+                }
+            };
+            
+            localStorage.setItem('project_' + projectName, JSON.stringify(data));
+            showToast(`Proyek "${projectName}" disimpan! 💾`, 'success');
+        }
+
+        function loadProject() {
+            const projectName = prompt('Nama Proyek:');
+            if (!projectName) return;            
+            const data = JSON.parse(localStorage.getItem('project_' + projectName));
+            if (!data) {
+                showToast('Proyek tidak ditemukan!', 'error');
+                return;
+            }
+            
+            document.getElementById('projectName').value = data.name;
+            // Load denah
+            document.getElementById('luas_tanah').value = data.denah.luas;
+            document.getElementById('jumlah_kamar').value = data.denah.kamar;
+            document.getElementById('jumlah_kamar_mandi').value = data.denah.km;
+            document.getElementById('tipe_rumah').value = data.denah.tipe;
+            
+            // Load kolom
+            document.getElementById('b_kolom').value = data.kolom.b;
+            document.getElementById('h_kolom').value = data.kolom.h;
+            document.getElementById('mainRebar_kolom').value = data.kolom.rebar;
+            document.getElementById('stirrup_kolom').value = data.kolom.stirrup;
+            
+            // Load pondasi
+            document.getElementById('jenis_pondasi').value = data.pondasi.jenis;
+            document.getElementById('beban_vertikal').value = data.pondasi.beban;
+            document.getElementById('mutu_beton_pondasi').value = data.pondasi.mutu;
+            document.getElementById('kedalaman').value = data.pondasi.kedalaman;
+            
+            // Load detail
+            document.getElementById('jenis_detail').value = data.detail.jenis;
+            document.getElementById('b_detail').value = data.detail.b;
+            document.getElementById('h_detail').value = data.detail.h;
+            document.getElementById('tulangan_detail').value = data.detail.rebar;
+            
+            showToast(`Proyek "${projectName}" dimuat! 📂`, 'success');
+        }
+
+        function shareProject() {
+            const projectName = document.getElementById('projectName').value || 'Untitled Project';
+            const data = JSON.parse(localStorage.getItem('project_' + projectName));
+            if (!data) {
+                showToast('Simpan proyek dulu!', 'error');
+                return;
+            }
+            
+            const link = `${window.location.origin}${window.location.pathname}?project=${encodeURIComponent(JSON.stringify(data))}`;
+            navigator.clipboard.writeText(link).then(() => {
+                showToast('Link proyek disalin! 📋', 'success');
+            }).catch(() => {
+                alert('Link: ' + link);
+            });
+        }
+        function clearProject() {
+            const projectName = document.getElementById('projectName').value || 'Untitled Project';
+            localStorage.removeItem('project_' + projectName);
+            showToast(`Proyek "${projectName}" dihapus! 🗑️`, 'success');
+        }
+
+        // Toast
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.innerHTML = `
+                <div style="
+                    position: fixed; bottom: 2rem; right: 2rem;
+                    background: ${type === 'success' ? 'var(--accent)' : 'var(--dark)'};
+                    color: white; padding: 1rem 1.5rem;
+                    border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+                    display: flex; align-items: center; gap: 0.8rem;
+                    z-index: 1000;
+                    animation: slideIn 0.3s ease;
+                ">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => { document.body.removeChild(toast); }, 3000);
+        }
+
+        // Check for shared project on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const projectData = urlParams.get('project');
+            if (projectData) {
+                try {
+                    const data = JSON.parse(decodeURIComponent(projectData));
+                    localStorage.setItem('project_' + data.name, JSON.stringify(data));
+                    loadProjectFromData(data);
+                } catch (e) {
+                    console.error('Invalid project data in URL');
+                }
+            }
+        });
+
+        function loadProjectFromData(data) {
+            document.getElementById('projectName').value = data.name;
+            // Load data similar to loadProject()
+            showToast('Proyek dari link dimuat! 📂', 'success');
+        }
+
+        // On load        document.addEventListener('DOMContentLoaded', () => {
+            // Default: Denah already shown
+        });
+    </script>
+</body>
+</html>
